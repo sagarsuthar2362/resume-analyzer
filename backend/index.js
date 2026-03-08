@@ -4,9 +4,9 @@ import "dotenv/config";
 import { connectDB } from "./configs/db.js";
 
 const PORT = process.env.PORT;
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL;
 const app = express();
-connectDB()
+connectDB();
 
 //middlewares
 app.use(express.json());
