@@ -1,7 +1,8 @@
 import asyncHandler from "../utils/asyncHandler.js";
+import ApiError from "../utils/ApiError.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import { generateToken, tokenGenerator } from "../utils/generateToken.js";
+import { generateToken } from "../utils/generateToken.js";
 
 export const Signup = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -30,4 +31,27 @@ export const Signup = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json({ success: true, message: "user created succesfully" });
+});
+
+export const SignIn = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid Credentials");
+  }
+
+  const token = generateToken(user._id);
+  res.cookie("token", token);
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Login successfull", token });
 });

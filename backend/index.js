@@ -16,6 +16,9 @@ app.use(
   }),
 );
 
+import authRoutes from "./routes/auth.routes.js";
+app.use("/api/v1/user", authRoutes);
+
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
 });
