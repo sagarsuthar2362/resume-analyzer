@@ -3,8 +3,9 @@ import cors from "cors";
 import "dotenv/config";
 import { connectDB } from "./configs/db.js";
 
-const PORT = process.env.PORT;
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL;
+const PORT = process.env.PORT || 3000;
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
+
 const app = express();
 connectDB();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: FRONTEND_ORIGIN,
+    credentials: true,
   }),
 );
 

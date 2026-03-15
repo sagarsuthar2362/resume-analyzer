@@ -2,9 +2,12 @@ const asyncHandler = (fn) => async (req, res, next) => {
   try {
     await fn(req, res, next);
   } catch (error) {
-    res.status(error.code || 500).json({
+    const statusCode = error.code || 500;
+    const message = error.message || "Internal server error";
+
+    res.status(statusCode).json({
       success: false,
-      message: error.message || "Internal server error",
+      message,
     });
   }
 };
