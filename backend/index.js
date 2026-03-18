@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { connectDB } from "./configs/db.js";
+import multer from "multer";
 
 const PORT = process.env.PORT || 3000;
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -20,6 +21,9 @@ app.use(
 
 import authRoutes from "./routes/auth.routes.js";
 app.use("/api/v1/user", authRoutes);
+
+import resumeRoutes from "./routes/resume.routes.js";
+app.use("/api/v1/resume", resumeRoutes);
 
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
