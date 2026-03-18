@@ -4,6 +4,8 @@ import axios from "axios";
 const Home = () => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // File handle karne ka function
   const handleFileChange = (e) => {
@@ -15,6 +17,8 @@ const Home = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+    setLoading(true);
+    setResult(null);
 
     const formData = new FormData();
     formData.append("resume", file);
@@ -24,9 +28,11 @@ const Home = () => {
         `http://localhost:3000/api/v1/resume/analyze`,
         formData,
       );
-      console.log(res);
+      setResult(res.data.result);
     } catch (error) {
-      console.log(error);
+      console.error("Analysis Failed", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,6 +132,105 @@ const Home = () => {
           {file ? "🚀 Analyze Now with Gemini AI" : "Please select a file"}
         </button>
       </div>
+
+      {/* 5. Result Section */}
+      {loading && (
+        <div className="mt-10 flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 font-medium">
+            Gemini is reading your resume...
+          </p>
+        </div>
+      )}
+
+      {result && (
+        <div className="w-full max-w-5xl mt-12 space-y-8 animate-in fade-in zoom-in duration-500">
+          {/* 1. Top Section: Score & Summary */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white p-8 rounded-3xl shadow-xl border border-blue-100 flex flex-col items-center justify-center text-center">
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-2">
+                ATS Score
+              </span>
+              <div className="relative flex items-center justify-center">
+                <svg className="w-32 h-32">
+                  <circle
+                    className="text-gray-200"
+                    strokeWidth="8"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="58"
+                    cx="64"
+                    cy="64"
+                  />
+                  <circle
+                    className="text-blue-600"
+                    strokeWidth="8"
+                    strokeDasharray={364.4}
+                    strokeDashoffset={364.4 - (364.4 * result.score) / 100}
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="58"
+                    cx="64"
+                    cy="64"
+                  />
+                </svg>
+                <span className="absolute text-3xl font-black text-gray-800">
+                  {result.score}%
+                </span>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+              <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                ✨ Analysis Summary
+              </h3>
+              <p className="text-gray-600 leading-relaxed italic">
+                "{result.match_summary}"
+              </p>
+            </div>
+          </div>
+
+          {/* 2. Middle Section: Missing Skills (Badges) */}
+          <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h3 className="text-xl font-bold text-red-600 mb-6 flex items-center gap-2">
+              🚫 Skills You Should Add
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {result.missing_skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="bg-red-50 text-red-700 px-4 py-2 rounded-xl text-sm font-semibold border border-red-100 hover:bg-red-100 transition-colors"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Bottom Section: Actionable Recommendations */}
+          <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h3 className="text-xl font-bold text-green-700 mb-6 flex items-center gap-2">
+              💡 How to Improve Your Resume
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {result.recommendations.map((rec, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100"
+                >
+                  <div className="bg-green-100 text-green-600 p-2 rounded-lg font-bold">
+                    {index + 1}
+                  </div>
+                  <p className="text-gray-700 text-sm leading-snug">
+                    {rec.replace(/\*\*/g, "")}{" "}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. Footer/How it works */}
       <div className="mt-12 flex gap-8 text-center text-gray-500 text-sm">
