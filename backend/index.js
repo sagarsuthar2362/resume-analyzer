@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { connectDB } from "./configs/db.js";
-import multer from "multer";
+import morgan from "morgan";
 
 const PORT = process.env.PORT || 3000;
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -18,6 +18,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(morgan("dev"));
 
 import authRoutes from "./routes/auth.routes.js";
 app.use("/api/v1/user", authRoutes);
